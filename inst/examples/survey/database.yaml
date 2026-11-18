@@ -1,0 +1,2 @@
+# A disposable database used by the getting-started example.
+dbname: ':memory:'
