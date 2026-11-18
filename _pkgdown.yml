@@ -1,0 +1,65 @@
+url: https://ultreia-io.github.io/db.tools/
+template:
+  bootstrap: 5
+  light-switch: true
+reference:
+  - title: S3 classes
+    contents: [db.tools_yaml_environment_variable-class]
+  - title: Connections
+    contents: [db_connect_from_yaml, with_db_connection]
+  - title: Queries and SQL files
+    contents: [db_query, read_sql_file]
+  - title: H2 backups
+    contents: [h2_backup_connection_provider]
+  - title: Package
+    contents: [db.tools-package]
+articles:
+  - title: Guides
+    navbar: Guides
+    contents: [terminology, database, h2, resources]
+navbar:
+  structure:
+    left: [intro, reference, articles, news, coverage, community]
+    right: [search, github, lightswitch]
+  components:
+    articles:
+      text: Articles
+      menu:
+        - text: Terminology
+          href: articles/terminology.html
+        - text: Getting started
+          href: articles/database.html
+        - text: H2 SQL backups
+          href: articles/h2.html
+        - text: Package resources
+          href: articles/resources.html
+    intro:
+      text: Getting started
+      href: articles/database.html
+    coverage:
+      text: Coverage
+      href: https://app.codecov.io/gh/ultreia-io/db.tools
+    community:
+      text: Community
+      menu:
+        - text: Contributing
+          href: CONTRIBUTING.html
+        - text: Maintainer guide
+          href: DEVELOPMENT.html
+        - text: Security policy
+          href: SECURITY.html
+        - text: Code of conduct
+          href: CODE_OF_CONDUCT.html
+# Keep repository navigation explicit and independent of metadata discovery.
+home:
+  sidebar: false
+news:
+  cran_dates: false
+footer:
+  structure:
+    left: [company, copyright, license]
+    right: built_with
+  components:
+    company: "[ultreia.io](https://ultreia.io/)"
+    copyright: "· © 2026"
+    license: "· [License: LGPL-2.1](/db.tools/LICENSE-text.html)"
