@@ -17,7 +17,7 @@ BugReports: https://github.com/ultreia-io/db.tools/issues
 Encoding: UTF-8
 Depends: R (>= 4.1.0)
 Imports: data.table, DBI, yaml
-Suggests: knitr, rmarkdown, RJDBC, RSQLite, testthat (>= 3.0.0), withr
+Suggests: knitr, rmarkdown, RJDBC, testthat (>= 3.0.0), withr
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
