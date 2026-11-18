@@ -1,0 +1,6 @@
+# Supply RPostgres::Postgres() and set the password in the current R session.
+host: localhost
+port: 5432
+dbname: survey
+user: survey_reader
+password: !env SURVEY_DB_PASSWORD

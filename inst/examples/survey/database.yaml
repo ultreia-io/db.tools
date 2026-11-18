@@ -1,0 +1,4 @@
+# File-backed H2 connection used by the getting-started example.
+url: !env SURVEY_H2_URL
+user: sa
+password: ''
