@@ -2,5 +2,6 @@
 
 export(db_connect_from_yaml)
 export(db_query)
+export(h2_backup_connection_provider)
 export(read_sql_file)
 export(with_db_connection)
