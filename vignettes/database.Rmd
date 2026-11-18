@@ -1,0 +1,104 @@
+---
+title: "Getting started"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+`db.tools` provides connection, query and SQL-file helpers for DBI applications.
+
+The core operations use the caller's DBI driver. H2 restoration is an optional backend described in [H2 SQL backups](h2.html).
+
+## Load the examples
+
+```{r resources}
+# Load the public API.
+library(db.tools)
+# Locate the packaged connection configuration and SQL query.
+resources_directory <- system.file("examples", "survey", package = "db.tools")
+# Select the disposable SQLite connection configuration.
+configuration_file <- file.path(resources_directory, "database.yaml")
+# Read the parameterized SQL statement.
+sql <- read_sql_file(file.path(resources_directory, "queries", "numbers.sql"))
+```
+
+The YAML file contains `dbname: ':memory:'`, an argument understood by RSQLite.
+
+Download the original files from [Package resources](resources.html).
+
+## Query through a scoped connection
+
+```{r query}
+# Supply a fresh connection for each operation.
+connection_provider <- function() db_connect_from_yaml(RSQLite::SQLite(), configuration_file)
+# Close the connection after the callback, including when a query fails.
+values <- with_db_connection(connection_provider, function(connection) {
+  # Create synthetic source data in this disposable database.
+  DBI::dbWriteTable(connection, "numbers", data.frame(value = 1:5))
+  # Bind the lower bound separately from the SQL statement.
+  db_query(connection, sql, params = list(2))
+})
+# Display the returned data.table.
+values
+```
+
+`db_query()` returns a `data.table`, preserving the result supplied by the database driver.
+
+The driver defines placeholder syntax and supported bound parameter types.
+
+RJDBC uses `list` instead of `params` for parameter binding; pass it through `db_query(..., list = list(value))`.
+
+`with_db_connection()` owns the provider's connection and closes it after the callback.
+
+Do not supply a shared connection whose lifecycle belongs to another component.
+
+When calling `db_query()` with an existing connection directly, the caller remains responsible for closing it.
+
+## Connection configuration and secrets
+
+The YAML document is a nonempty mapping of arguments passed to `DBI::dbConnect()`.
+
+The caller supplies the driver separately. A YAML `drv` entry is rejected.
+
+```yaml
+host: localhost
+port: 5432
+dbname: survey
+user: survey_reader
+password: !env SURVEY_DB_PASSWORD
+```
+
+`!env` names a process environment variable and resolves its value when opening the connection.
+
+Unset variables raise an error. Keep passwords outside configuration files and source code.
+
+Applications may retrieve the value from a keyring at the start of an R session.
+
+```{r keyring, eval=FALSE}
+# Register a password through the keyring's secure interactive prompt.
+keyring::key_set("survey-db")
+# Supply the secret to this session under the name referenced by YAML.
+Sys.setenv(SURVEY_DB_PASSWORD = keyring::key_get("survey-db"))
+# Remove the process variable when database work finishes.
+Sys.unsetenv("SURVEY_DB_PASSWORD")
+```
+
+The keyring entry has its own lifetime; the environment variable belongs only to the current process.
+
+CI and services can supply the same variable through their secret manager.
+
+## SQL resources
+
+`read_sql_file()` reads UTF-8 text from an explicit path and preserves line boundaries.
+
+It does not interpolate parameters, execute SQL or search an implicit working directory.
+
+Use `system.file()` to locate resources bundled with an installed package.
+
+## H2 backups
+
+Use `h2_backup_connection_provider()` to supply connections from a trusted plain or compressed H2 SQL backup.
+
+The [H2 guide](h2.html) covers destination directories, reuse, cleanup and driver settings.

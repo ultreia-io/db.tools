@@ -1,0 +1,82 @@
+---
+title: "H2 SQL backups"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{H2 SQL backups}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+`h2_backup_connection_provider()` restores a trusted H2 SQL backup and returns a reusable connection provider.
+
+Install RJDBC and set `H2_JAR` to a driver compatible with your backup before running the example.
+
+Java runs H2; RJDBC exposes its connections through DBI. The package does not download a driver.
+
+## Restore and query
+
+This example creates its own compressed backup and removes all temporary files afterwards.
+
+```{r restore-backup, eval=nzchar(Sys.getenv("H2_JAR")) && requireNamespace("RJDBC", quietly=TRUE)}
+# Scope source and restored connections to this example.
+local({
+  # Load the caller-selected H2 driver.
+  driver <- RJDBC::JDBC("org.h2.Driver", Sys.getenv("H2_JAR"), identifier.quote = '"')
+  # Create a disposable source database with lowercase identifiers.
+  source_connection <- DBI::dbConnect(driver, "jdbc:h2:mem:backup-guide;DATABASE_TO_LOWER=TRUE", "sa", "")
+  # Close the source connection on success or failure.
+  on.exit(DBI::dbDisconnect(source_connection), add = TRUE)
+  # Populate synthetic values.
+  DBI::dbWriteTable(source_connection, "numbers", data.frame(amount = 1:3))
+  # Select a temporary gzip backup path.
+  backup_file <- tempfile("numbers-", fileext = ".sql.gz")
+  # Remove the backup after use.
+  on.exit(unlink(backup_file), add = TRUE)
+  # Write a native H2 backup without passwords or settings.
+  invisible(db.tools::db_query(source_connection, paste0("SCRIPT NOPASSWORDS NOSETTINGS TO ",
+    DBI::dbQuoteString(source_connection, backup_file), " COMPRESSION GZIP")))
+  # Prepare restoration into a new temporary directory.
+  provider <- db.tools::h2_backup_connection_provider(backup_file, driver,
+    settings = c(DATABASE_TO_LOWER = "TRUE"))
+  # Remove restored files after the scoped connection closes.
+  on.exit(unlink(attr(provider, "directory"), recursive = TRUE), add = TRUE)
+  # Restore once, query through RJDBC's parameter-binding argument, then close.
+  db.tools::with_db_connection(provider, function(connection) {
+    # Keep the filter value separate from SQL text.
+    db.tools::db_query(connection, "SELECT amount FROM numbers WHERE amount > ? ORDER BY amount",
+      list = list(1))
+  })
+})
+```
+
+RJDBC uses `list` for bound parameters. Other DBI drivers generally use `params`.
+
+## Destination and lifecycle
+
+- `directory = NA` chooses a new path under the session temporary directory.
+- An explicit directory persists; its parent must exist and the destination must be new.
+- Restoration is lazy: the first provider call creates the database.
+- Later calls reopen the same database without reading the backup again.
+- Connections open read-only unless `read_only = FALSE` is selected.
+- A failed restore closes its connections and removes the directory it created.
+- Closing a connection retains the database for reuse.
+
+After closing all connections, remove `attr(provider, "directory")` when it is no longer needed.
+
+Temporary databases also follow normal R-session cleanup. Explicit directories persist.
+
+## Reopen a persistent database
+
+Save `attr(provider, "url")` and use it with the same driver and credentials through `DBI::dbConnect()`.
+
+The URL contains no credentials and includes `IFEXISTS=TRUE`, so a missing database is not silently recreated.
+
+A new provider never adopts an existing directory.
+
+## Consumer responsibilities
+
+The caller selects the compatible H2 driver, database account and any required identifier settings.
+
+The provider performs no schema migration and applies no application-specific defaults.
+
+Consumers can adapt the returned connection to their own model or query service.

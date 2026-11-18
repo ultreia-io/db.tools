@@ -1,0 +1,35 @@
+---
+title: "Terminology"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Terminology}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Database access
+
+- **Driver:** a caller-selected implementation of DBI, such as RPostgres, RSQLite or RJDBC.
+- **Connection:** an open database session. Its owner must close it.
+- **Connection provider:** a zero-argument function returning a fresh caller-owned connection.
+- **Scoped connection:** a provider's connection closed by `with_db_connection()` when its callback finishes.
+- **Bound parameter:** a value supplied separately from SQL text through the selected driver's binding mechanism.
+- **SQL resource:** a UTF-8 file read from an explicit path by `read_sql_file()`.
+
+## Configuration and credentials
+
+- **Connection configuration:** a YAML mapping of arguments accepted by the selected DBI driver.
+- **Environment reference:** a `!env` tag naming a process variable, resolved immediately before connection.
+- **Keyring:** an optional external credential store. The application supplies its secret to the current session.
+
+## H2 backups
+
+- **SQL backup:** a trusted H2 script, optionally gzip-compressed, restored with H2's native `RUNSCRIPT`.
+- **Restore directory:** a new destination reserved by the provider before executing the backup.
+- **Temporary destination:** a unique directory under the current R session's temporary directory.
+- **Persistent destination:** an explicit new directory retained after the session.
+- **Reusable provider:** restores once, then supplies fresh connections to the same database.
+
+A database connection is not a form model or a table-loading plan.
+
+Consumers such as form.tools select the tables and SQL files appropriate to their own model.
