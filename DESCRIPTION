@@ -1,0 +1,26 @@
+Package: db.tools
+Title: Database Connection and Query Tools
+Version: 0.1.0
+Authors@R:
+    person("Tony", "Chemit", role = c("aut", "cre", "cph"),
+           email = "dev@tchemit.fr",
+           comment = c(ORCID = "0009-0007-1802-5256", URL = "https://ultreia.io"))
+Description: Provides reusable helpers for database workflows built on 'DBI'.
+    Executes parameterized queries as 'data.table' objects, manages connections
+    supplied by application code, and reads connection options and SQL files.
+    Restores H2 SQL backups into temporary or persistent directories and supplies
+    reusable connection providers through an optional JDBC driver.
+License: LGPL-2.1
+URL: https://ultreia-io.github.io/db.tools/,
+    https://github.com/ultreia-io/db.tools
+BugReports: https://github.com/ultreia-io/db.tools/issues
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports: data.table, DBI, yaml
+Suggests: knitr, rmarkdown, RJDBC, RSQLite, testthat (>= 3.0.0), withr
+VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
+Config/testthat/edition: 3
+Config/Needs/coverage: covr, xml2
+Config/Needs/website: pkgdown, zip
+Config/roxygen2/version: 8.1.1
