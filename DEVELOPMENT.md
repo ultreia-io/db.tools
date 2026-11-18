@@ -4,46 +4,34 @@ Work on `develop`. `main` contains releases.
 
 ## Code organization
 
-| File                  | Responsibility                                        |
-|-----------------------|-------------------------------------------------------|
-| `database.R`          | Public connection, query and SQL-file operations.      |
-| `database-internal.R` | Configuration markers, validation and cleanup helpers. |
-| `h2.R`                | Public H2 backup connection provider.                  |
-| `h2-internal.R`       | H2 settings, restoration and failed-restore cleanup.    |
-| `db.tools-package.R`  | Package-level documentation.                           |
+| File                 | Responsibility                                      |
+|----------------------|-----------------------------------------------------|
+| `database.R`         | Connection, query and SQL file operations.          |
+| `h2.R`               | H2 backup restoration and connection providers.     |
+| `db.tools-package.R` | Package documentation.                              |
 
-Each area has one public API file and one internal helper file.
+Internal helpers follow the public functions in each file.
 
 The package owns database operations; consumers own form models, application schemas and export rules.
 
 ## Local verification
 
-Install development dependencies, LaTeX, Java and RJDBC, then run from the package root:
+Install the development dependencies, LaTeX, Java and RJDBC. Run this from the package root.
 
 ```sh
-# Select a compatible H2 driver supplied by your environment.
-export H2_JAR=/path/to/h2-2.5.252.jar
-# Generate documentation, run tests and CRAN checks, then build the website.
+export H2_JAR=/path/to/h2.jar
 Rscript tools/check.R
 ```
 
-The workflow includes examples, vignettes, the PDF manual and CRAN incoming checks.
+The script generates documentation, runs tests and `R CMD check --as-cran`, and builds the website.
 
-Without RJDBC or `H2_JAR`, H2 tests and executable H2 vignette chunks are skipped.
+Local and GitHub checks stop early if RJDBC or the H2 driver cannot load.
 
-Set both for comprehensive verification. No test opens a user backup.
+Plain `R CMD check`, as run by CRAN, skips H2 tests and examples when the optional driver setup is absent.
 
-Archives and check output stay in `build/`.
+Check results and source archives are written to `build/`.
 
-Local and CI checks share the CRAN mirror settings in `tools/check.Renviron`.
-
-The Build workflow checks Linux release/devel, macOS and Windows.
-
-CI configures Java 21 and verifies the H2 2.5.252 driver checksum before running the existing H2 tests.
-
-Coverage runs once after successful Linux release checks and uploads to Codecov using `CODECOV_TOKEN`.
-
-The organization provides this secret. Fork pull requests can upload coverage without making upload errors fail checks.
+GitHub Actions checks Linux with R release and R-devel, plus macOS and Windows with R release.
 
 ## Examples and website
 

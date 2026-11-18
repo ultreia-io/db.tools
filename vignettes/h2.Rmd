@@ -1,0 +1,67 @@
+---
+title: "H2 SQL backups"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{H2 SQL backups}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+`h2_backup_connection_provider()` restores a trusted H2 SQL backup and returns a reusable connection provider.
+
+Install RJDBC and withr, then set `H2_JAR` to the path of a compatible H2 JAR.
+
+Java runs H2; RJDBC exposes its connections through DBI. The package does not download a driver.
+
+## Restore and query
+
+The example restores the bundled `numbers.sql` backup and removes the database files after querying them.
+
+The backup is also available from [Package resources](resources.html).
+
+```{r restore-backup, eval=file.exists(Sys.getenv("H2_JAR")) && requireNamespace("RJDBC", quietly=TRUE)}
+library(db.tools)
+
+local({
+  driver <- RJDBC::JDBC("org.h2.Driver", Sys.getenv("H2_JAR"))
+  backup_file <- system.file("examples", "survey", "backups", "numbers.sql", package = "db.tools")
+  provider <- h2_backup_connection_provider(backup_file, driver)
+  withr::defer(unlink(attr(provider, "directory"), recursive = TRUE))
+
+  with_db_connection(provider, function(connection) {
+    db_query(connection, "SELECT amount FROM numbers ORDER BY amount")
+  })
+})
+```
+
+To restore your own backup, pass its `.sql` or `.sql.gz` path as `backup_file`.
+
+## Destination and lifecycle
+
+- `directory = NA` chooses a new path under the session temporary directory.
+- An explicit directory persists; its parent must exist and the destination must be new.
+- Restoration is lazy: the first provider call creates the database.
+- Later calls reopen the same database without reading the backup again.
+- Connections open read-only unless `read_only = FALSE` is selected.
+- A failed restore closes its connections and removes the directory it created.
+- Closing a connection retains the database for reuse.
+
+After closing all connections, remove `attr(provider, "directory")` when it is no longer needed.
+
+Temporary databases also follow normal R-session cleanup. Explicit directories persist.
+
+## Reopen a persistent database
+
+Save `attr(provider, "url")` and use it with the same driver and credentials through `DBI::dbConnect()`.
+
+The URL contains no credentials and includes `IFEXISTS=TRUE`, so a missing database is not silently recreated.
+
+A new provider never adopts an existing directory.
+
+## Consumer responsibilities
+
+The caller selects the compatible H2 driver, database account and any required identifier settings.
+
+The provider performs no schema migration and applies no application-specific defaults.
+
+Consumers can adapt the returned connection to their own model or query service.
