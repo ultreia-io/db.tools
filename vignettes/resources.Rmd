@@ -1,0 +1,54 @@
+---
+title: "Package resources"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Package resources}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+The survey resources are shared by the [getting-started guide](database.html) and application examples.
+
+Connection YAML passes driver-specific arguments to DBI; this package does not define a separate configuration schema.
+
+## Downloads
+
+```{r downloads, echo=FALSE, results='asis'}
+# Locate the installed example directory.
+resources_directory <- system.file("examples", "survey", package = "db.tools")
+# Read the version used in the downloadable archive name.
+resources_version <- as.character(utils::packageVersion("db.tools"))
+# Describe every packaged resource.
+resources_descriptions <- c(
+  "README.md" = "Directory layout and usage notes.",
+  "backups/numbers.sql" = "Synthetic H2 backup used by the restore guide.",
+  "database.yaml" = "File-backed H2 connection with a session URL reference.",
+  "postgresql.yaml" = "PostgreSQL configuration with a session password reference.",
+  "queries/numbers.sql" = "Query with one bound lower limit.")
+# List all files, including nested SQL resources.
+resources_files <- list.files(resources_directory, recursive = TRUE)
+# Show file names in the installed guide.
+resources_labels <- sprintf("`%s`", resources_files)
+# Add direct downloads only when building the website.
+if (identical(Sys.getenv("IN_PKGDOWN"), "true")) {
+  # Offer a ZIP archive preserving the examples directory.
+  cat(sprintf("[Download all examples (%s, ZIP)](../db.tools-resources-%s.zip).\n\n",
+    resources_version, resources_version))
+  # Keep Markdown downloads distinct from generated HTML pages.
+  resources_urls <- paste0("https://ultreia-io.github.io/db.tools/examples/survey/", resources_files)
+  # Link each original file.
+  resources_labels <- sprintf("[`%s`](%s)", resources_files, resources_urls)
+}
+# Render the complete resource inventory.
+knitr::kable(data.frame(File = resources_labels,
+  Purpose = unname(resources_descriptions[resources_files])), format = "pipe")
+```
+
+The archive name includes the package version and preserves the layout under `examples/survey/`.
+
+## Installed resources
+
+```{r installed-resources}
+# Locate the same resources without downloading files.
+system.file("examples", "survey", package = "db.tools")
+```
