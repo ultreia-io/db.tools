@@ -217,8 +217,8 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: ultreia-io/db.tools
-          # Attribute release checks to the merged main commit, rather than the release PR head.
-          override_commit: ${{ steps.checkout.outputs.commit }}
+          # Publish Release passes the merge SHA as ref. REST checkout may omit the commit output.
+          override_commit: ${{ github.event.pull_request.merged == true && inputs.ref || steps.checkout.outputs.commit }}
           override_branch: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref || '' }}
           files: coverage.xml
           plugins: noop
