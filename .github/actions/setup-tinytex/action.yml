@@ -23,7 +23,7 @@ runs:
       with:
         path: ${{ steps.location.outputs.path }}
         key: tinytex-${{ steps.location.outputs.identity }}-v1-${{ steps.location.outputs.week }}
-    - uses: r-lib/actions/setup-tinytex@v2.12.1
+    - uses: r-lib/actions/setup-tinytex@v2.14.0
       if: steps.tex-cache.outputs.cache-hit != 'true'
     - name: Restore TinyTeX executable path
       shell: Rscript {0}
