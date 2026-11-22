@@ -84,12 +84,12 @@ jobs:
         id: apt-cache
         uses: ./.github/actions/cache-apt
 
-      # Add R check tools, Ubuntu identification and curl/gpg for the Codecov uploader.
+      # Add R check tools and GPG for Temurin and Codecov signature verification.
       - name: Install Linux check tools
         if: matrix.config.container != ''
         run: |
           apt-get update
-          apt-get install -y --no-install-recommends git qpdf ghostscript lsb-release sudo texinfo xz-utils curl gpg tidy libssl-dev
+          apt-get install -y --no-install-recommends git qpdf ghostscript lsb-release sudo texinfo xz-utils curl gpg gpg-agent tidy libssl-dev
 
       # Prefer modern HTML Tidy over the older version supplied by macOS.
       - name: Install HTML Tidy on macOS

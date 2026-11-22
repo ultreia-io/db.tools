@@ -59,12 +59,12 @@ jobs:
           scope: apt-website-rocker
           fallback-scope: apt-rocker
 
-      # Add Git, R check tools, Ubuntu identification and curl for the H2 driver download.
+      # Add R check tools, curl for H2 and GPG for Temurin signature verification.
       - name: Install Linux check tools
         if: runner.os == 'Linux'
         run: |
           apt-get update
-          apt-get install -y --no-install-recommends git qpdf ghostscript lsb-release curl
+          apt-get install -y --no-install-recommends git qpdf ghostscript lsb-release curl gpg gpg-agent
 
       # Configure the image's R installation and prefer package binaries where supported.
       - name: Set up R

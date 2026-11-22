@@ -69,12 +69,12 @@ jobs:
         id: apt-cache
         uses: ./.github/actions/cache-apt
 
-      # Add Git, R check tools and lsb_release, which setup-r uses to identify Ubuntu.
+      # Add R check tools and GPG for Temurin signature verification.
       - name: Install Linux check tools
         if: runner.os == 'Linux'
         run: |
           apt-get update
-          apt-get install -y --no-install-recommends git qpdf ghostscript lsb-release sudo texinfo xz-utils curl tidy
+          apt-get install -y --no-install-recommends git qpdf ghostscript lsb-release sudo texinfo xz-utils curl gpg gpg-agent tidy
 
       # Configure the image's R installation and use package binaries where supported.
       - name: Set up R
