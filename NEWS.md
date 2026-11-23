@@ -1,3 +1,7 @@
+# db.tools 0.1.2
+
+* [CRAN] Quote software names in DESCRIPTION.
+
 # db.tools 0.1.1
 
 * [feature] Bind RJDBC query parameters through the standard `db_query()` `params` argument.
