@@ -101,10 +101,6 @@ For a runnable example that creates its own temporary H2 database, see the [gett
 - [Package resources][resources]
 - [Function reference][reference]
 
-## License
-
-LGPL-2.1. See [LICENSE](LICENSE).
-
 [terminology]: https://ultreia-io.github.io/db.tools/articles/terminology.html
 [getting-started]: https://ultreia-io.github.io/db.tools/articles/database.html
 [h2]: https://ultreia-io.github.io/db.tools/articles/h2.html

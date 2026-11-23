@@ -1,6 +1,6 @@
 Package: db.tools
 Title: Database Connection and Query Tools
-Version: 0.1.0
+Version: 0.1.1
 Authors@R:
     person("Tony", "Chemit", role = c("aut", "cre", "cph"),
            email = "dev@tchemit.fr",

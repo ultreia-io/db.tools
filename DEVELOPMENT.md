@@ -67,11 +67,3 @@ The manual **Publish Release** action accepts an existing tag and retries submis
 ## License
 
 LGPL-2.1. See [LICENSE](LICENSE).
-
-## Repository settings
-
-Both `main` and `develop` are protected against force pushes and deletion.
-
-GitHub Pages uses Actions and accepts deployments only from protected branches.
-
-Run the Website workflow from `develop` or `main`; its `ref` input selects the commit or tag to document.

@@ -84,12 +84,12 @@ jobs:
         id: apt-cache
         uses: ./.github/actions/cache-apt
 
-      # Add R check tools, Ubuntu identification and curl/gpg for the Codecov uploader.
+      # Add R check tools and GPG for Temurin and Codecov signature verification.
       - name: Install Linux check tools
         if: matrix.config.container != ''
         run: |
           apt-get update
-          apt-get install -y --no-install-recommends git qpdf ghostscript lsb-release sudo texinfo xz-utils curl gpg tidy libssl-dev
+          apt-get install -y --no-install-recommends git qpdf ghostscript lsb-release sudo texinfo xz-utils curl gpg gpg-agent tidy libssl-dev
 
       # Prefer modern HTML Tidy over the older version supplied by macOS.
       - name: Install HTML Tidy on macOS
@@ -107,7 +107,7 @@ jobs:
       - name: Set up R
         if: matrix.config.r != 'devel'
         id: setup-r
-        uses: r-lib/actions/setup-r@v2.12.1
+        uses: r-lib/actions/setup-r@v2.14.0
         with:
           r-version: ${{ steps.apt-cache.outputs.r-version || matrix.config.r }}
           install-r: ${{ runner.os == 'macOS' }}
@@ -125,7 +125,7 @@ jobs:
 
       # Pandoc is needed to render the package vignettes.
       - name: Set up Pandoc
-        uses: r-lib/actions/setup-pandoc@v2.12.1
+        uses: r-lib/actions/setup-pandoc@v2.14.0
       # Reuse the complete manual toolchain across checks and publication.
       - name: Set up cached TinyTeX
         uses: ./.github/actions/setup-tinytex
@@ -152,7 +152,7 @@ jobs:
 
       # Install package dependencies plus the tools used to generate documentation and run R CMD check.
       - name: Install R dependencies
-        uses: r-lib/actions/setup-r-dependencies@v2.12.1
+        uses: r-lib/actions/setup-r-dependencies@v2.14.0
         with:
           pak-version: ${{ matrix.config.r == 'devel' && 'none' || 'stable' }}
           extra-packages: |
@@ -174,7 +174,7 @@ jobs:
       # Warnings and errors fail this check; notes remain visible in the results.
       - name: Check package
         id: package-check
-        uses: r-lib/actions/check-r-package@v2.12.1
+        uses: r-lib/actions/check-r-package@v2.14.0
         with:
           args: '"--as-cran"'
           build_args: 'character()'
@@ -213,12 +213,12 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: success() && runner.os == 'Linux' && matrix.config.r == 'release'
-        uses: codecov/codecov-action@v7.0.0
+        uses: codecov/codecov-action@v7.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: ultreia-io/db.tools
-          # Attribute release checks to the merged main commit, rather than the release PR head.
-          override_commit: ${{ steps.checkout.outputs.commit }}
+          # Publish Release passes the merge SHA as ref. REST checkout may omit the commit output.
+          override_commit: ${{ github.event.pull_request.merged == true && inputs.ref || steps.checkout.outputs.commit }}
           override_branch: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref || '' }}
           files: coverage.xml
           plugins: noop

@@ -12,7 +12,8 @@ db_query(connection, sql, params = NULL, ...)
 \item{sql}{A character scalar containing the SQL statement to execute.}
 
 \item{params}{An optional list of values to bind to parameter placeholders.
-The placeholder syntax is defined by the DBI backend.}
+The placeholder syntax is defined by the DBI backend. For RJDBC connections,
+these values are passed through the driver's \code{list} argument.}
 
 \item{...}{Additional arguments passed to \code{\link[DBI:dbGetQuery]{DBI::dbGetQuery()}}.}
 }
@@ -27,7 +28,7 @@ DBI backend used by the connection.
 \examples{
 \dontrun{
 # Bind the lower limit on an open RJDBC connection.
-db_query(connection, "SELECT amount FROM numbers WHERE amount > ?", list = list(2))
+db_query(connection, "SELECT amount FROM numbers WHERE amount > ?", params = list(2))
 }
 }
 \seealso{

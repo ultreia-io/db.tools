@@ -124,7 +124,8 @@ with_db_connection <- function(connection_provider, code) {
 #' @param connection A valid [DBI::DBIConnection-class].
 #' @param sql A character scalar containing the SQL statement to execute.
 #' @param params An optional list of values to bind to parameter placeholders.
-#'   The placeholder syntax is defined by the DBI backend.
+#'   The placeholder syntax is defined by the DBI backend. For RJDBC connections,
+#'   these values are passed through the driver's `list` argument.
 #' @param ... Additional arguments passed to [DBI::dbGetQuery()].
 #'
 #' @return A [data.table::data.table] containing the query result.
@@ -134,7 +135,7 @@ with_db_connection <- function(connection_provider, code) {
 #' @examples
 #' \dontrun{
 #' # Bind the lower limit on an open RJDBC connection.
-#' db_query(connection, "SELECT amount FROM numbers WHERE amount > ?", list = list(2))
+#' db_query(connection, "SELECT amount FROM numbers WHERE amount > ?", params = list(2))
 #' }
 db_query <- function(connection, sql, params = NULL, ...) {
   invalid_sql <- !is.character(sql) ||
@@ -146,12 +147,11 @@ db_query <- function(connection, sql, params = NULL, ...) {
     stop("`sql` must be a single, non-empty character value.", call. = FALSE)
   }
 
-  result <- DBI::dbGetQuery(
-    conn = connection,
-    statement = sql,
-    params = params,
-    ...
-  )
+  if (inherits(connection, "JDBCConnection") && !is.null(params)) {
+    result <- DBI::dbGetQuery(connection, sql, list = params, ...)
+  } else {
+    result <- DBI::dbGetQuery(connection, sql, params = params, ...)
+  }
 
   data.table::as.data.table(result)
 }
