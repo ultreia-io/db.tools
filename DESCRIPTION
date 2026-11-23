@@ -1,6 +1,6 @@
 Package: db.tools
 Title: Database Connection and Query Tools
-Version: 0.1.1
+Version: 0.1.2
 Authors@R:
     person("Tony", "Chemit", role = c("aut", "cre", "cph"),
            email = "dev@tchemit.fr",
@@ -8,8 +8,8 @@ Authors@R:
 Description: Provides reusable helpers for database workflows built on 'DBI'.
     Executes parameterized queries as 'data.table' objects, manages connections
     supplied by application code, and reads connection options and SQL files.
-    Restores H2 SQL backups into temporary or persistent directories and supplies
-    reusable connection providers through an optional JDBC driver.
+    Restores 'H2' SQL backups into temporary or persistent directories and
+    supplies reusable connection providers using the optional 'RJDBC' package.
 License: LGPL-2.1
 URL: https://ultreia-io.github.io/db.tools/,
     https://github.com/ultreia-io/db.tools
