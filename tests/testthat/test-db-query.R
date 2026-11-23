@@ -8,7 +8,7 @@ test_that("db_query returns a data table", {
   result <- db_query(
     connection,
     "SELECT amount FROM numbers WHERE amount > ? ORDER BY amount",
-    list = list(1)
+    params = list(1)
   )
 
   expect_s3_class(result, "data.table")

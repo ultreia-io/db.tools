@@ -45,7 +45,7 @@ local({
   connection_provider <- function() db_connect_from_yaml(driver, configuration_file)
   with_db_connection(connection_provider, function(connection) {
     DBI::dbWriteTable(connection, "numbers", data.frame(amount = 1:5))
-    db_query(connection, sql, list = list(2))
+    db_query(connection, sql, params = list(2))
   })
 })
 ```
@@ -54,7 +54,7 @@ local({
 
 The driver defines placeholder syntax and supported bound parameter types.
 
-RJDBC uses `list` instead of `params` for parameter binding; pass it through `db_query(..., list = list(value))`.
+`db_query()` accepts `params` for RJDBC connections and passes the values to the driver.
 
 `with_db_connection()` calls the provider to open the connection and closes it when the callback finishes.
 
